@@ -102,7 +102,7 @@ ADHD,rs4916723,C,0.67
 ADHD,rs11420276,G,0.22
 Migraine,rs1835740,A,0.51
 ...
-
+```
 
 ### Future development plans (based on current limitations) include:
 
