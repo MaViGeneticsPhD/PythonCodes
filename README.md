@@ -1,128 +1,155 @@
-# Final Project - HORT530 
-# Maria Victoria Pereira de Souza
+# Final Project - HORT530
+## Maria Victoria Pereira de Souza
 
-# Single Human SNP analyzer
+# Single Human SNP Analyzer with Polygenic Risk Score Report
 
-## Description
-This Project is a Python-based code designed to analyze genetic variation in an individual's SNP (Single Nucleotide Polymorphism) data. First, it shows the basic descriptive statistics after the data has been cleaned. Secondly, it matches the individual's genotype against known risk alleles (from publications) for various phenotypes to calculate risk scores. 
-Note: these risk scores are biased since they came from an weighted average and not from a statistical test. 
-## The code performs:
-- Data quality control
-- Summary statistics on genetic variation
-- Genotype frequency analysis
-- Graphs (.png) for visualization
-- SNP matching against known phenotype associations (some are self-reported by the individual, others are expectations) 
-- Risk score calculations for various traits (phenotypes)
+---
 
-This project enables individuals to understand their genetic predispositions to various traits and conditions based on their raw SNP data (such as that provided by consumer genetic testing services).
+## Description  
+This Python-based project analyzes an individual's SNP (Single Nucleotide Polymorphism) data to identify genetic predispositions 
+for various traits and conditions based on published risk allele data from GWAS studies.  
 
-## Features
-- Data Cleaning: Pre-processes raw SNP data files for analysis
-- Phenotype Association: Maps SNPs to associated phenotypes based on scientific literature
-- Risk Assessment: Calculates weighted risk scores based on matching risk alleles
-- Reporting: Generates detailed reports of findings with risk levels
-- Supports CSV-based input
-- Performance Optimization: Efficiently processes large SNP datasets (60k+ SNPs)
+It includes:
+- Descriptive statistics on genomic variation  
+- Matching of genotypes against known phenotype-associated SNPs  
+- Polygenic Risk Score (PRS) calculation  
+- Ranked risk contribution summary  
+- Automated output report in `.txt` format
 
-#######################################################################################################################################################
+> Note: The current PRS implementation uses additive scoring with GWAS-reported effect sizes and 
+does **not** perform population-level corrections or statistical significance testing.
 
-FIRST PART - DESCRIPTIVE STATISTICS
+---
 
+## What can you expect from this code?
+- Data Quality Control: Cleans SNP data (missing values, invalid entries, sex-specific chromosome filtering).  
+- Descriptive Stats: SNP counts, distribution per chromosome, and data completeness.  
+- Risk Allele Matching: Maps individual genotypes to known phenotype associations.  
+- Polygenic Risk Score (PRS) Calculation: Includes dosage-based contribution per trait.  
+- Top-Risk Traits Identification: Lists most genetically influenced traits by cumulative PRS score.  
+- Graphical Output: in `.png` format.  
+
+---
+
+## Project Structure  
+
+This project contains:
+- `README.txt` (this file)  
+- `1stats.py` — runs descriptive statistics  
+- `PRS.py` — analyzes SNPs and generates PRS report  
+- `307383_mavi_seq.csv` — raw SNP data  
+- `gwas_catalog.tsv` — Gwas Catalog association data downloaded from https://www.ebi.ac.uk/gwas/
+
+---
+
+## Getting Started  
+
+1. Open a terminal.  
+2. Log in to your Purdue Scholar user account.  
+3. Navigate to:  
+   ```bash
+   cd /scratch/scholar/mavi/FinalProjectMavi
+   ```
+
+### Environment Setup
+
+Make sure you have Anaconda installed and load it:
+```bash
+module load anaconda
+```
+
+Then, set up the environment:
+```bash
+conda create --name py3117 python=3.11.7
+conda activate py3117
+conda install numpy scipy pandas matplotlib 
+```
+
+---
+
+## Part 1 - Descriptive Statistics
+
+Run:
 ```bash
 python 1stats.py
 ```
-This will analyze the raw SNP data file, generate a cleaned SNP data file in csv format and some graphics as well.
 
-### Sample output
+This script:
+- Loads and cleans raw SNP data  
+- Outputs cleaned data (`cleaned_snp_data.csv`)  
+- Saves a SNP scatter plot as `.png`
 
-Total number of SNPs: 60902
-Number of unique chromosomes: 22
-SNPs per chromosome:
-  Chromosome 1: 5085 SNPs
-  Chromosome 2: 4972 SNPs
-  Chromosome 3: 4293 SNPs
-  Chromosome 4: 3812 SNPs
+Example output:
+```
+Total SNPs: 60,902  
+Chromosomes analyzed: 22  
+SNPs per chromosome:  
+ - Chromosome 1: 5085  
+ - Chromosome 2: 4972  
+...
+```
 
-##########################################################################################################################################################
+---
 
-SECOND PART - SNPS X PHENOTYPES ASSOCIATIONS
+## Part 2 - SNP-Phenotype Associations & PRS Calculation
 
+Run:
 ```bash
-python SNPs_analyzer.py
+python PRS.py
 ```
-This will analyze the default SNP data file (`cleaned_snp_data.csv`) against the phenotype associations defined in `combined_phenotypes_rsid_effect.csv`.
 
-Sample Output
+This script:
+- Reads cleaned SNP data  
+- Compares individual genotypes to phenotype-associated SNPs  
+- Calculates dosage-based PRS  
+- Writes detailed report to `polygenic_risk_score_report.txt`  
+- Prints Top Risk-Contributing Traits
 
-Detailed Phenotype-SNP Analysis:
-Phenotype SNP Genotype Risk Allele Effect Size Match
---------------------------------------------------------------------------------
-ADHD:
-  rs6537401 Not found GA 0.945 N/A
-  rs4916723 AA AC 0.918 Yes
-  rs77960 Not found GA 0.929 N/A
-
-...
-
-============================================================
-PHENOTYPE RISK SUMMARY:
-------------------------------------------------------------
-Phenotype Risk Score
-------------------------------------------------------------
-brown_eye 100.0% (High)
-HbF 22.4% (Low)
-colorectal_cancer 17.0% (Low)
-ADHD 14.5% (Low)
-
-Run time duration: 0.23 seconds
-
-
-To analyze your own data:
-
-1. Prepare your SNP data in CSV format with at least columns for RSID and GENOTYPE
-2. Create a phenotype associations file with columns for phenotype, rsID, Genotype (risk allele), and effect_size
-3. Run the analysis
-
-
-### Data Format
-
-SNP Data CSV Format
-
-RSID,CHROMOSOME,POSITION,GENOTYPE
-rs4916723,1,1857048,CT
-rs1835740,7,2749849,AG
-rs12913832,21,987689,GG
-...
-
-
-Phenotype Associations CSV Format
+Example terminal output:
 ```
-phenotype,rsID,Genotype,effect_size
-ADHD,rs4916723,C,0.67
-ADHD,rs11420276,G,0.22
-Migraine,rs1835740,A,0.51
+Top 20 Risk-Contributing Traits:
+----------------------------------------
+Type 2 diabetes: 3.2871  
+Breast cancer: 2.9504   
 ...
 ```
 
-### Future development plans (based on current limitations) include:
+---
 
-- Expanded Phenotype Database: Include more phenotypes and associations from recent studies
-- API Integration: Connect with scientific databases for up-to-date phenotype associations
-- Population Comparison: Compare individual results with population averages
+## Data Formats
+
+### SNP Input File (`.csv`)
+```
+RSID,CHROMOSOME,POSITION,GENOTYPE  
+rs4916723,1,1857048,CT  
+rs1835740,7,2749849,AG  
+...
+```
+
+### Phenotype-SNP Association File
+```
+DISEASE/TRAIT,RSID,RISK_ALLELE,EFFECT_SIZE  
+ADHD,rs4916723,C,0.67  
+Migraine,rs1835740,A,0.51  
+...
+```
+
+---
+
+## Future Development
+- Normalize PRS using population-level allele frequencies  
+- Interactive dashboard for trait visualization  
+  
+
+---
+
+## References  
+1. Aissani, B., Zhang, K. & Wiener, H. Evaluation of GWAS candidate susceptibility loci for uterine leiomyoma in the 
+multi-ethnic NIEHS uterine fibroid study. Front Genet 6, 241 (2015).  
+2. GWAS Catalog: https://www.ebi.ac.uk/gwas/  
+3. Visscher et al., *10 Years of GWAS Discovery*, Nature Reviews Genetics, 2017.
+
+---
 
 
-### References
-
-1. Aissani, B., Zhang, K. & Wiener, H. Evaluation of GWAS candidate susceptibility loci for uterine leiomyoma in the multi-ethnic NIEHS uterine fibroid study. Front Genet 6, 241 (2015).
-2. Day, F. et al. Large-scale genome-wide meta-analysis of polycystic ovary syndrome suggests shared genetic architecture for different diagnosis criteria. PLoS Genet 14, e1007813 (2018).
-3. Demontis, D. et al. Genome-wide analyses of attention deficit hyperactivity disorder identify 27 risk loci, refine the genetic architecture, and implicate several cognitive domains. Nat Genet 55, 198–208 (2023).
-4. Hautakangas, H. et al. Genome-wide analysis of 102,084 migraine cases identifies 123 risk loci and subtype-specific risk alleles. Nat Genet 54, 152–160 (2022).
-5. Liu, F. et al. Meta-analysis of genome-wide association studies identifies 8 novel loci involved in shape variation of human head hair. Human Molecular Genetics 27, 559–575 (2018).
-6. Zhang, H. et al. Genome-wide association study identifies 32 novel breast cancer susceptibility loci from overall and subtype-specific analyses. Nat Genet 52, 572–581 (2020).
-7. Genome-wide analysis in over 1 million individuals of European ancestry yields improved polygenic risk scores for blood pressure traits | Nature Genetics. https://www.nature.com/articles/s41588-024-01714-w.
-8. Genome-wide association analyses identify 143 risk variants and putative regulatory mechanisms for type 2 diabetes | Nature Communications. https://www.nature.com/articles/s41467-018-04951-w.
-9. Genome-wide association study of major anxiety disorders in 122,341 European-ancestry cases identifies 58 loci and highlights GABAergic signaling. PubMed Central (PMC) https://pmc.ncbi.nlm.nih.gov/articles/PMC11245051/.
-10. Table 1 Summary results for the new colorectal cancer risk loci in Europeans.
-11. Table 2 Association results of detected risk variants.
-12. Liu, F. et al. Meta-analysis of genome-wide association studies identifies 8 novel loci involved in shape variation of human head hair. Hum Mol Genet (2018) doi:10.1093/hmg/ddx416.
 
